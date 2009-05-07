@@ -1,0 +1,76 @@
+= ActsAsExpired
+
+Acts as Expired allows you to set expiration information to any ActiveRecord based model.
+
+== Installation
+
+Install using gems:
+
+  # config/environment.rb
+  config.gem 'acts_as_expired', :source => 'http://gems.github.com'
+
+  $ sudo rake gems:install
+  $ script/generate acts_as_expired_on_migration
+  $ rake db:migrate
+  
+== Usage
+
+Add acts_as_expired to your ActiveRecord model:
+
+  class Foobar < ActiveRecord::Base
+    acts_as_expired
+  end
+  
+Now you can set expiry date using +expires!+
+  # Set expiry using default settings
+  Foobar.first.expires! 
+  
+  # Set expiry date 1 year ahead, and notification time 2 days before expiry
+  Foobar.first.expires! :at => 1.year.from.now, :notify_at => 2.days
+  
+  # Set expiry date to 2010-01-01 and notification set to 12-01-2009
+  Foobar.first.expires! :at => Time.mktime(2010), :notify_at => Time.mktime(2009, 12)
+  
+  # Find out if object has expired
+  Foobar.first.expired? # => true / false
+  
+Expire has some named scopes you can use to find expired/expiring objects.
+
+  # Find objects that has expired
+  Expire.expired  # => array of expired objects
+  
+  # Loop thru objects that are about to expire
+  Expire.within(3.months.from_now).each { |expire| puts "#{expire.expirable.to_s} expires in #{time_ago_in_words(expire.at)}" }
+  
+== Notifications
+
+You can also set notification options to the Expire object, using +notify_at+ and +notify_email+.
++notify_at+ is when notification should be sent, and +notify_email+ is the email address the notification should be sent to.
+
+The gem does not provide any methods to automatically send notifications, this is up to you.
+But here is an example of how this can be done. First create an ExpiredMailer:
+
+  # app/models/expired_mailer.rb
+  class ExpiredMailer < ActionMailer::Base
+    def notification(object)
+      raise ArgumentError, "notify_email not set!" if object.notify_email.blank?
+    
+      recipients  object.notify_email
+      subject     "Notification about expiring object"
+      from        "dev-null@localhost"
+      body        :object => object
+    end
+  end
+
+Then setup a cronjob and run something like this using a rake task or script/runner:
+  
+  Expire.notifiable.each do |expired|
+    ExpiredMailer.deliver_notification(expired)
+    expired.update_attribute(:notified_at, Time.now)
+  end
+
+The gem ships with an ExpiredMailer, you can install it with 'script/generate acts_as_expired_mailer'.
+But it's not made to be portable, so it probably won't work out-of-the-box. 
+I recommend you create your own expired_mailer.
+
+Copyright (c) 2009 Gudleik Rasch <gudleik@rastamatra.org>, released under the MIT license

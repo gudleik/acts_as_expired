@@ -1,0 +1,12 @@
+<%= t('.intro') %> 
+
+  * <%= @object.expirable.to_s %> <<%= Settings.mail.url_options.protocol %>://<%= Settings.mail.url_options.host %><%= url_for(@object.expirable) %>>
+  <%= Expire.human_attribute_name('at') %>: <%= @object.at.strftime("%Y-%m-%d") -%>
+
+<% if @object.note -%>
+  <%= Expire.human_attribute_name("notes") -%>:
+  <%= @object.note -%>
+<% end -%>
+
+--
+<%= t('.signature', :app_name => Settings.app.name) %>

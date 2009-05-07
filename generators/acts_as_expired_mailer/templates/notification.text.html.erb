@@ -1,0 +1,26 @@
+<p>
+  <%= t('.intro') %> 
+</p>
+
+<ul>
+  <li>
+    <a href="<%= Settings.mail.url_options.protocol %>://<%= Settings.mail.url_options.host %><%= url_for(@object.expirable) %>"><%= @object.expirable.to_s %></a>
+
+    <br/>
+    <b><%= Expire.human_attribute_name('at') %></b>: <%= @object.at.strftime("%Y-%m-%d") -%>
+  </li>
+</ul>
+
+<% if @object.note -%>
+<p>
+  <%= Expire.human_attribute_name("notes") -%>:
+  <div style="margin:1em">
+    <%= @object.note -%>
+  </div>
+</p>
+<% end -%>
+
+<p>
+--<br/>
+<%= t('.signature', :app_name => Settings.app.name) %> 
+</p>
