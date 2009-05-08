@@ -7,7 +7,7 @@ Acts as Expired allows you to set expiration information to any ActiveRecord bas
 Install using gems:
 
   # config/environment.rb
-  config.gem 'acts_as_expired', :source => 'http://gems.github.com'
+  config.gem 'gudleik-acts_as_expired', :lib => 'acts_as_expired', :source => 'http://gems.github.com'
 
   $ sudo rake gems:install
   $ script/generate acts_as_expired_on_migration
